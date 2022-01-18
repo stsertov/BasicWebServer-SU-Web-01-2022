@@ -11,12 +11,13 @@
         public int Count 
             => this.headers.Count;
 
-        public Header this[string key] => headers[key];
+        public Header this[string key] 
+            => headers[key];
 
         public void Add(string name, string value)
             => this.headers[name] = new Header(name, value);
 
-        public bool ContainsKey(string key)
+        public bool Contains(string key)
             => this.headers.ContainsKey(key);
         public IEnumerator<Header> GetEnumerator()
             => this.headers.Values.GetEnumerator();

@@ -3,9 +3,10 @@
     using BasicWebServer.Server.HTTP;
     public class HtmlResponse : ContentResponse
     {
-        public HtmlResponse(string _content) 
-            : base(_content, ContentType.Html)
+        public HtmlResponse(string _content, Action<Request, Response> _preRenderAction = null) 
+            : base(_content, ContentType.Html, _preRenderAction)
         {
+            
         }
     }
 }

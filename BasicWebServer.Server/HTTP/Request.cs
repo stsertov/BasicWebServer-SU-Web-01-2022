@@ -12,6 +12,8 @@ namespace BasicWebServer.Server.HTTP
 
         public HeaderCollection Headers { get; private set; }
 
+        public CookieCollection Cookies { get; private set; }
+
         public IReadOnlyDictionary<string, string> Form { get; private set; }
         public string Body { get; private set; }
 
@@ -28,6 +30,8 @@ namespace BasicWebServer.Server.HTTP
 
             var headers = ParseHeaders(lines.Skip(1));
 
+            var cookies = ParseCookies(headers);
+
             string body = string.Join(separator, lines.Skip(headers.Count + 2));
 
             var form = ParseForm(headers, body);
@@ -37,39 +41,11 @@ namespace BasicWebServer.Server.HTTP
                 Method = method,
                 Url = url,
                 Headers = headers,
+                Cookies = cookies,
                 Form = form,
                 Body = body
             };
         }
-
-        private static Dictionary<string, string> ParseForm(HeaderCollection headers, string body)
-        {
-            var form = new Dictionary<string, string>();
-            
-            if(headers.ContainsKey(Header.ContentType) 
-                && headers[Header.ContentType].Value == ContentType.FormUrlEncoded)
-            {
-                var resultForm = ParseFormData(body);
-
-                foreach (var (name, value) in resultForm)
-                {
-                    form.Add(name, value);
-                }
-            }
-
-            return form;
-        }
-
-        private static Dictionary<string, string> ParseFormData(string body)
-            => HttpUtility.UrlDecode(body)
-            .Split('&')
-            .Select(x => x.Split('='))
-            .Where(x => x.Length == 2)
-            .ToDictionary(
-                key => key[0], 
-                value => value[1], 
-                StringComparer.InvariantCultureIgnoreCase);
-
         private static Method ParseMethod(string method)
         {
             try
@@ -106,5 +82,55 @@ namespace BasicWebServer.Server.HTTP
 
             return headers;
         }
+
+        private static CookieCollection ParseCookies(HeaderCollection headers)
+        {
+            var cookieCollection = new CookieCollection();
+
+            if(headers.Contains(Header.Cookie))
+            {
+                var cookieHeader = headers[Header.Cookie].Value;
+                var allCookies = cookieHeader.Split(';');
+
+                foreach (var cookieText in allCookies)
+                {
+                    var cookieParts = cookieText.Split('=');
+
+                    var cookieName = cookieParts[0].Trim();
+                    var cookieValue = cookieParts[1].Trim();
+
+                    cookieCollection.Add(cookieName, cookieValue);
+                }
+            }
+            return cookieCollection;
+        }
+
+        private static Dictionary<string, string> ParseForm(HeaderCollection headers, string body)
+        {
+            var form = new Dictionary<string, string>();
+
+            if (headers.Contains(Header.ContentType)
+                && headers[Header.ContentType].Value == ContentType.FormUrlEncoded)
+            {
+                var resultForm = ParseFormData(body);
+
+                foreach (var (name, value) in resultForm)
+                {
+                    form.Add(name, value);
+                }
+            }
+
+            return form;
+        }
+
+        private static Dictionary<string, string> ParseFormData(string body)
+            => HttpUtility.UrlDecode(body)
+            .Split('&')
+            .Select(x => x.Split('='))
+            .Where(x => x.Length == 2)
+            .ToDictionary(
+                key => key[0],
+                value => value[1],
+                StringComparer.InvariantCultureIgnoreCase);
     }
 }

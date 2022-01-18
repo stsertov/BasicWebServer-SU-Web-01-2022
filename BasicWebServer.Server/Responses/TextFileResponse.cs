@@ -9,7 +9,7 @@
             : base(StatusCode.OK)
         {
             Guard.AgainstNull(_fileName, nameof(_fileName));
-            FileName= _fileName;
+            FileName = _fileName;
 
             this.Headers.Add(Header.ContentType, ContentType.PlainText);
         }
