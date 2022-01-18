@@ -1,7 +1,6 @@
 ﻿namespace BasicWebServer.Server.HTTP
 {
     using System.Web;
-
     public class Request
     {
         private const string separator = "\r\n";
