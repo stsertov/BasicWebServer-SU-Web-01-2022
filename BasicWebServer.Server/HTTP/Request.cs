@@ -1,8 +1,6 @@
-﻿using System.Globalization;
-using System.Web;
-
-namespace BasicWebServer.Server.HTTP
+﻿namespace BasicWebServer.Server.HTTP
 {
+    using System.Web;
     public class Request
     {
         private const string separator = "\r\n";
@@ -79,7 +77,6 @@ namespace BasicWebServer.Server.HTTP
 
                 headers.Add(headerParts[0], headerParts[1].Trim());
             }
-
             return headers;
         }
 
@@ -87,7 +84,7 @@ namespace BasicWebServer.Server.HTTP
         {
             var cookieCollection = new CookieCollection();
 
-            if(headers.Contains(Header.Cookie))
+            if (headers.Contains(Header.Cookie))
             {
                 var cookieHeader = headers[Header.Cookie].Value;
                 var allCookies = cookieHeader.Split(';');
@@ -119,7 +116,6 @@ namespace BasicWebServer.Server.HTTP
                     form.Add(name, value);
                 }
             }
-
             return form;
         }
 
