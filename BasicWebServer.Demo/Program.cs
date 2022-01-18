@@ -101,7 +101,7 @@
                 var cookieText = new StringBuilder();
                 cookieText.AppendLine("<h1>Cookies</h1>");
 
-                cookieText.Append("<table border ='1'><tr><th>Name</th></tr>");
+                cookieText.Append("<table border ='1'><tr><th>Name</th><th>Value</th></tr>");
 
                 foreach (var cookie in request.Cookies)
                 {
