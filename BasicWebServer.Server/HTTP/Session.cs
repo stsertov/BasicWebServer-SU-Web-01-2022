@@ -8,6 +8,8 @@
 
         public const string SessionCurrentDateKey = "CurrentDate";
 
+        public const string SessionUserKey = "AuthenticatedUserId";
+
         private readonly Dictionary<string, string> data;
 
         public Session(string _id)
@@ -29,5 +31,8 @@
 
         public bool ContainsKey(string key)
             => data.ContainsKey(key);
+
+        public void Clear()
+            => data.Clear();
     }
 }
