@@ -1,8 +1,11 @@
 ﻿namespace BasicWebServer.Server.HTTP
 {
+    using System.Linq;
     using System.Web;
     public class Request
     {
+        private static Dictionary<string, Session> Sessions = new();
+
         private const string separator = "\r\n";
         public Method Method { get; private set; }
 
@@ -13,8 +16,10 @@
         public CookieCollection Cookies { get; private set; }
 
         public IReadOnlyDictionary<string, string> Form { get; private set; }
+
         public string Body { get; private set; }
 
+        public Session Session { get; private set; }
         public static Request Parse(string request)
         {
             var lines = request.Split(separator);
@@ -30,6 +35,8 @@
 
             var cookies = ParseCookies(headers);
 
+            var session = GetSession(cookies);
+
             string body = string.Join(separator, lines.Skip(headers.Count + 2));
 
             var form = ParseForm(headers, body);
@@ -40,10 +47,12 @@
                 Url = url,
                 Headers = headers,
                 Cookies = cookies,
+                Session = session,
                 Form = form,
                 Body = body
             };
         }
+
         private static Method ParseMethod(string method)
         {
             try
@@ -100,6 +109,19 @@
                 }
             }
             return cookieCollection;
+        }
+
+        private static Session GetSession(CookieCollection cookies)
+        {
+            var sessionId = cookies.Contains(Session.SessionCookieName)
+                ? cookies[Session.SessionCookieName] : Guid.NewGuid().ToString();
+
+            if (!Sessions.ContainsKey(sessionId))
+            {
+                Sessions[sessionId] = new Session(sessionId);
+            }
+
+            return Sessions[sessionId];
         }
 
         private static Dictionary<string, string> ParseForm(HeaderCollection headers, string body)

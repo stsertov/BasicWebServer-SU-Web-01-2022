@@ -49,38 +49,31 @@
                 _ = Task.Run(async () =>
                 {
                     var networkStream = connection.GetStream();
-                
+
                     var requestText = await ReadRequest(networkStream);
-                
+
                     Console.WriteLine(requestText);
-                
+
                     var request = Request.Parse(requestText);
-                
+
                     var response = routingTable.MatchRequest(request);
-                
+
                     if (response.PreRenderAction != null)
-                    {
                         response.PreRenderAction(request, response);
-                    }
-                
+
+                    AddSession(request, response);
+
+
                     //  var content = "Hello from the Server!";
-                
+
                     await WriteResponse(networkStream, response);
-                
+
                     connection.Close();
                 });
-                
+
 
             }
         }
-
-        private async Task WriteResponse(NetworkStream networkStream, Response response)
-        {
-            var responseBytes = Encoding.UTF8.GetBytes(response.ToString());
-
-            await networkStream.WriteAsync(responseBytes);
-        }
-
         private async Task<string> ReadRequest(NetworkStream networkStream)
         {
             var bufferLength = 1024;
@@ -106,5 +99,26 @@
             return sb.ToString();
         }
 
+        private static void AddSession(Request request, Response response)
+        {
+            var sessionExists = request.Session
+                .ContainsKey(Session.SessionCurrentDateKey);
+
+            if(!sessionExists)
+            {
+                request.Session[Session.SessionCurrentDateKey]
+                    = DateTime.Now.ToString();
+
+                response.Cookies
+                    .Add(Session.SessionCookieName, request.Session.Id);
+            }
+        }
+
+        private async Task WriteResponse(NetworkStream networkStream, Response response)
+        {
+            var responseBytes = Encoding.UTF8.GetBytes(response.ToString());
+
+            await networkStream.WriteAsync(responseBytes);
+        }
     }
 }

@@ -33,7 +33,8 @@
                             .MapPost("/HTML", new TextResponse("", StartUp.AddFormDataAction))
                             .MapGet("/Content", new HtmlResponse(StartUp.DownloadForm))
                             .MapPost("/Content", new TextFileResponse(StartUp.FileName))
-                            .MapGet("/Cookies", new HtmlResponse("", StartUp.AddCookiesAction)));
+                            .MapGet("/Cookies", new HtmlResponse("", StartUp.AddCookiesAction))
+                            .MapGet("/Session", new TextResponse("", StartUp.DisplaySessionInfoAction)));
 
             await server.Start();
         }
@@ -93,7 +94,8 @@
 
         private static void AddCookiesAction(Request request, Response response)
         {
-            var requestHasCookies = request.Cookies.Any();
+            var requestHasCookies = request.Cookies
+                .Any(c => c.Name != Session.SessionCookieName);
             var bodyText = string.Empty;
 
             if (requestHasCookies)
@@ -114,20 +116,39 @@
                 }
                 cookieText.Append("</table>");
 
-                bodyText= cookieText.ToString();
+                bodyText = cookieText.ToString();
             }
             else
             {
                 bodyText = "<h1>Cookies set!</h1>";
-            }
 
-            response.Body = bodyText;
-
-            if(!requestHasCookies)
-            {
                 response.Cookies.Add("My-Cookie", "My-Value");
                 response.Cookies.Add("Ragnarok-Cookie", "Ragnarok-Value");
             }
+
+            response.Body = bodyText;
+        }
+
+        private static void DisplaySessionInfoAction(Request request, Response response)
+        {
+            var sessionExists = request.Session
+                .ContainsKey(Session.SessionCurrentDateKey);
+
+            var bodyText = string.Empty;
+
+            if(sessionExists)
+            {
+                var currentDate = request.Session[Session.SessionCurrentDateKey];
+
+                bodyText = $"Date stored: {currentDate}";
+            }
+            else
+            {
+                bodyText = "Current date stored!"; 
+            }
+
+            response.Body = string.Empty;
+            response.Body = bodyText;
         }
     }
 }

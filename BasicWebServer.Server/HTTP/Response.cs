@@ -13,7 +13,9 @@
         public StatusCode StatusCode { get; init; }
 
         public HeaderCollection Headers { get; } = new HeaderCollection();
+
         public CookieCollection Cookies { get; } = new CookieCollection();
+
         public string Body { get; set; }
 
         public Action<Request, Response> PreRenderAction { get; protected set; }
