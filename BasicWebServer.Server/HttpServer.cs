@@ -63,10 +63,9 @@
 
                     connection.Close();
                 });
-
-
             }
         }
+
         private async Task<string> ReadRequest(NetworkStream networkStream)
         {
             var bufferLength = 1024;

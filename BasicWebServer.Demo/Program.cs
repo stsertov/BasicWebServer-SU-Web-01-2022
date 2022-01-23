@@ -3,6 +3,7 @@
     using BasicWebServer.Demo.Cotrollers;
     using BasicWebServer.Server;
     using BasicWebServer.Server.Controllers;
+    using BasicWebServer.Server.HTTP;
     using System.Text;
     public class StartUp
     {

@@ -2,6 +2,7 @@
 {
     using BasicWebServer.Server.HTTP;
     using BasicWebServer.Server.Responses;
+    using System.Runtime.CompilerServices;
 
     public abstract class Controller
     {
@@ -28,6 +29,11 @@
             return response;
         }
 
+        protected Response View([CallerMemberName] string viewName = "") 
+            => new ViewResponse(viewName, this.GetControllerName());
+        protected Response View(object model, [CallerMemberName] string viewName = "") 
+            => new ViewResponse(viewName, this.GetControllerName(), model);
+
         protected Response BadRequest() => new BadRequestResponse();
 
         protected Response Unauthorized() => new UnauthorizedResponse();
@@ -37,5 +43,9 @@
         protected Response Redirect(string location) => new RedirectResponse(location);
 
         protected Response File(string fileName) => new TextFileResponse(fileName);
+
+        private string GetControllerName()
+            => this.GetType().Name
+            .Replace(nameof(Controller), string.Empty);
     }
 }

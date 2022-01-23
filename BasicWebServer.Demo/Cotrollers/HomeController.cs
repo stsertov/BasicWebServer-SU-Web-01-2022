@@ -1,5 +1,6 @@
 ﻿namespace BasicWebServer.Demo.Cotrollers
 {
+    using BasicWebServer.Demo.Models;
     using BasicWebServer.Server.Controllers;
     using BasicWebServer.Server.HTTP;
     using System.Text;
@@ -7,16 +8,6 @@
 
     public class HomeController : Controller
     {
-        private const string HtmlForm = @"<form action='/HTML' method='POST'>
-   Name: <input type='text' name='Name'/>
-   Age: <input type='number' name ='Age'/>
-<input type='submit' value ='Save' />
-</form>";
-
-        private const string DownloadForm = @"<form action='/Content' method='POST'>
-   <input type='submit' value ='Download Sites Content' /> 
-</form>";
-
         private const string FileName = "content.txt";
 
         public HomeController(Request _request)
@@ -28,21 +19,27 @@
 
         public Response Redirect() => Redirect(@"https://softuni.org/");
 
-        public Response Html() => Html(HomeController.HtmlForm);
+        public Response Html() => View();
+
+       //public Response Html() => Html(HomeController.HtmlForm);
 
         public Response HtmlFormPost()
         {
-            string formData = string.Empty;
+            var name = Request.Form["Name"];
+            var age = Request.Form["Age"];
 
-            foreach (var (name, value) in Request.Form)
+            var model = new FormViewModel()
             {
-                formData += $"{name} - {value}";
-                formData += Environment.NewLine;
-            }
-            return Text(formData);
+                Name = name,
+                Age = int.Parse(age)
+            };
+
+            return View(model);
         }
 
-        public Response Content() => Html(HomeController.DownloadForm);
+        public Response Content() => View();
+
+       // public Response Content() => Html(HomeController.DownloadForm);
 
         public Response DownloadContent()
         {
