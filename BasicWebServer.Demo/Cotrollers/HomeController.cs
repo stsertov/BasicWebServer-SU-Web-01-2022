@@ -21,8 +21,6 @@
 
         public Response Html() => View();
 
-       //public Response Html() => Html(HomeController.HtmlForm);
-
         public Response HtmlFormPost()
         {
             var name = Request.Form["Name"];
