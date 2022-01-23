@@ -6,15 +6,11 @@
 
     public class ContentResponse : Response
     {
-        public ContentResponse(string _content, string _contentType
-            ,Action<Request, Response> _preRenderAction = null) 
+        public ContentResponse(string _content, string _contentType) 
             : base(StatusCode.OK)
         {
             Guard.AgainstNull(_content);
             Guard.AgainstNull(_contentType);
-
-            PreRenderAction = _preRenderAction;
-
 
             Headers.Add(Header.ContentType, _contentType);
 

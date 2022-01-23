@@ -6,7 +6,6 @@
     using System.Net;
     using System.Net.Sockets;
     using System.Text;
-
     public class HttpServer
     {
         private readonly IPAddress ipAddress;
@@ -58,13 +57,7 @@
 
                     var response = routingTable.MatchRequest(request);
 
-                    if (response.PreRenderAction != null)
-                        response.PreRenderAction(request, response);
-
                     AddSession(request, response);
-
-
-                    //  var content = "Hello from the Server!";
 
                     await WriteResponse(networkStream, response);
 

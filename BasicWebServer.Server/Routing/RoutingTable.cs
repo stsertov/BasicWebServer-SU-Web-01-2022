@@ -6,7 +6,7 @@
 
     public class RoutingTable : IRoutingTable
     {
-        private readonly Dictionary<Method, Dictionary<string, Response>> routes = new()
+        private readonly Dictionary<Method, Dictionary<string, Func<Request, Response>>> routes = new()
         {
             [Method.GET] = new(),
             [Method.POST] = new(),
@@ -14,45 +14,35 @@
             [Method.DELETE] = new()
         };
 
-        public IRoutingTable Map(string url, Method method, Response response)
-         => method switch
-         {
-             Method.GET => MapGet(url, response),
-             Method.POST => MapPost(url, response),
-             _ => throw new InvalidOperationException($"Method '{method}' is not supported.")
-         };
-
-        public IRoutingTable MapGet(string url, Response response)
+        public IRoutingTable Map(Method method, string path, Func<Request, Response> responseFunction)
         {
-            Guard.AgainstNull(url, nameof(url));
-            Guard.AgainstNull(response, nameof(response));
+            Guard.AgainstNull(path, nameof(path));
+            Guard.AgainstNull(responseFunction, nameof(responseFunction));
 
-            routes[Method.GET][url] = response;
+            routes[method][path] = responseFunction;
 
             return this;
         }
 
-        public IRoutingTable MapPost(string url, Response response)
-        {
-            Guard.AgainstNull(url, nameof(url));
-            Guard.AgainstNull(response, nameof(response));
-
-            routes[Method.POST][url] = response;
-
-            return this;
-        }
+        public IRoutingTable MapGet(string path, Func<Request, Response> responseFunction)
+            => Map(Method.GET, path, responseFunction);
+        
+        public IRoutingTable MapPost(string path, Func<Request, Response> responseFunction)
+            => Map(Method.POST, path, responseFunction);
 
         public Response MatchRequest(Request request)
         {
-            var method = request.Method;
-            var url = request.Url;
+            var requestMethod = request.Method;
+            var requestPath = request.Url;
 
-            if(!routes.ContainsKey(method) || !routes[method].ContainsKey(url))
+            if(!routes.ContainsKey(requestMethod) || !routes[requestMethod].ContainsKey(requestPath))
             {
                 return new NotFoundResponse();
             }
 
-            return routes[method][url];
+            var responseFunction = routes[requestMethod][requestPath];
+
+            return responseFunction(request);
         }
     }
 }
