@@ -37,8 +37,6 @@
 
         public Response Content() => View();
 
-       // public Response Content() => Html(HomeController.DownloadForm);
-
         public Response DownloadContent()
         {
             DownloadSitesAsTextFile(HomeController.FileName,
